@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+/* ---------- Design tokens ---------- */
+@theme {
+  --color-desk: #ECEAF4;
+  --color-desk-deep: #DEDAEE;
+  --color-ink: #1F1A3D;
+  --color-ink-soft: #5B5680;
+  --color-grape: #6C4CF1;
+  --color-grape-dark: #5536D6;
+  --color-marker: #FFE14D;
+  --color-danger: #E5484D;
+
+  /* sticky-note colours, one per category */
+  --color-note-sky: #BFE3FF;
+  --color-note-mint: #C3F2D6;
+  --color-note-peach: #FFD3B0;
+  --color-note-pink: #FFC9DE;
+  --color-note-lilac: #DCD0FF;
+  --color-note-lemon: #FFF1A8;
+
+  --font-sans: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-hand: "Caveat", cursive;
+
+  --shadow-hard-sm: 2px 2px 0 0 #1F1A3D;
+  --shadow-hard: 4px 4px 0 0 #1F1A3D;
+  --shadow-hard-lg: 7px 7px 0 0 #1F1A3D;
+}
+
+/* ---------- Base ---------- */
+html {
+  background: var(--color-desk);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background-color: var(--color-desk);
+  /* faint graph-paper grid, like a notebook */
+  background-image:
+    linear-gradient(rgba(31, 26, 61, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 26, 61, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-marker);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-grape);
+  outline-offset: 2px;
+}
+
+/* ---------- Reusable pieces ---------- */
+@layer components {
+  .panel {
+    @apply bg-white border-2 border-ink rounded-[18px] shadow-hard;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border-2 border-ink font-bold text-[15px]
+      shadow-hard-sm transition-[transform,box-shadow] duration-100 cursor-pointer select-none
+      disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+  .btn:not(:disabled):hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 0 var(--color-ink);
+  }
+  .btn:not(:disabled):active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 0 var(--color-ink);
+  }
+  .btn-primary {
+    @apply bg-grape text-white;
+  }
+  .btn-marker {
+    @apply bg-marker text-ink;
+  }
+  .btn-ghost {
+    @apply bg-white text-ink;
+  }
+  .btn-danger {
+    @apply bg-danger text-white;
+  }
+  .btn-sm {
+    @apply px-3.5 py-1.5 text-sm;
+  }
+
+  .field-label {
+    @apply block text-sm font-bold mb-1.5;
+  }
+  .field {
+    @apply w-full bg-white border-2 border-ink rounded-xl px-3.5 py-2.5 text-[15px] text-ink
+      placeholder:text-ink-soft/60 outline-none transition-shadow;
+  }
+  .field:focus {
+    box-shadow: 3px 3px 0 0 var(--color-grape);
+  }
+  .field-error {
+    @apply text-danger text-[13px] font-semibold mt-1;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border-[1.5px] border-ink text-xs font-bold bg-white;
+  }
+
+  /* sticky note (inside the layer so utilities like "absolute" can override it) */
+  .note {
+    position: relative;
+    border: 2px solid var(--color-ink);
+    border-radius: 4px 4px 4px 14px;
+    box-shadow: var(--shadow-hard);
+    padding: 26px 18px 16px;
+  }
+  /* strip of tape at the top */
+  .note::before {
+    content: "";
+    position: absolute;
+    top: -11px;
+    left: 50%;
+    width: 74px;
+    height: 22px;
+    transform: translateX(-50%) rotate(-3deg);
+    background: rgba(255, 255, 255, 0.65);
+    border: 1.5px solid rgba(31, 26, 61, 0.25);
+    backdrop-filter: blur(1px);
+  }
+
+  /* highlighter-pen underline used for page titles */
+  .marker-title {
+    background-image: linear-gradient(transparent 58%, var(--color-marker) 58%, var(--color-marker) 90%, transparent 90%);
+    padding: 0 4px;
+    margin: 0 -4px;
+  }
+}
+
+/* the one orchestrated moment: notes get pinned to the board on load */
+@keyframes pin {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) rotate(var(--tilt, 0deg)) scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--tilt, 0deg)) scale(1);
+  }
+}
+.note-pin {
+  transform: rotate(var(--tilt, 0deg));
+  animation: pin 420ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note-pin {
+    animation: none;
+  }
+}
+
+/* hide scrollbar on the mobile nav strip */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
